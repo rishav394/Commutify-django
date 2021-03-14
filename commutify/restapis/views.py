@@ -165,7 +165,7 @@ def friends(request):
                 Q(user1=request.session["id"]) | Q(user2=request.session["id"])
             )
             .filter(**request.data)
-            .values()
+            .values("user1__id", "user2__id", "status__value", "initiator__id")
         )
         return Response(all_friends)
     if request.method == "POST":
@@ -213,7 +213,6 @@ def friends(request):
 
             return Response(status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            print(e)
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
     if request.method == "DELETE":
         # Cancel friend request or unfriend user
