@@ -1,12 +1,11 @@
+# Use this in development
+# Rename it to production_settings.py and set DEBUG to false to use in Production
+
 SECRET_KEY = "v=fgklxg95ztx^@=$u($41buc1pemrj6=f=y)wk5e6kuszr+iv"
 
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
 
 DATABASES = {
     "default": {

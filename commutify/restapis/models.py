@@ -104,6 +104,10 @@ class UserDomains(models.Model):
         User, models.DO_NOTHING, db_column="user", null=False, blank=False
     )
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(UserDomains, self).save(*args, **kwargs)
+
     class Meta:
         db_table = "user_domains"
         unique_together = ("user", "domain")
@@ -132,6 +136,7 @@ class UserFriend(models.Model):
     initiator = models.ForeignKey(
         User, models.DO_NOTHING, db_column="initiator", blank=False, null=False
     )
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -139,7 +144,7 @@ class UserFriend(models.Model):
             raise ValidationError(
                 "User 1 should be less than User 2 to avoid duplications"
             )
-        super(Status, self).save(*args, **kwargs)
+        super(UserFriend, self).save(*args, **kwargs)
 
     class Meta:
         db_table = "user_friend"

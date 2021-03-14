@@ -13,4 +13,6 @@ urlpatterns = [
     # Domains
     path("domain", views.domains),
     path("domain-user", views.domain_users),
+    # Friends
+    path("friends", views.friends),
 ]

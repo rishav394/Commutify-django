@@ -57,7 +57,8 @@ def sign_up(request):
 
 @api_view(["GET"])
 def logout(request):
-    del request.session["id"]
+    if "id" in request.session:
+        del request.session["id"]
     return Response(status=status.HTTP_200_OK)
 
 
@@ -152,3 +153,77 @@ def domain_users(request):
 
 
 # FRIENDS
+
+
+@api_view(["GET", "POST", "PUT", "DELETE"])
+@valid_session
+def friends(request):
+    if request.method == "GET":
+        # List friends with filter of this user
+        all_friends = (
+            UserFriend.objects.filter(
+                Q(user1=request.session["id"]) | Q(user2=request.session["id"])
+            )
+            .filter(**request.data)
+            .values()
+        )
+        return Response(all_friends)
+    if request.method == "POST":
+        # Accept request
+        user1 = request.data.get("friend_id")
+        user2 = request.user.id
+        if user1 > user2:
+            user1, user2 = user2, user1
+
+        update_count = UserFriend.objects.filter(
+            user1=user1,
+            user2=user2,
+            status__value="Pending",
+            initiator=request.data["friend_id"],
+        ).update(status=4)
+
+        if update_count == 1:
+            return Response(status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("No such request found", status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "PUT":
+        # Send friend request
+        try:
+            user1 = request.data.get("friend_id")
+            user2 = request.user.id
+            if user1 > user2:
+                user1, user2 = user2, user1
+
+            if user1 == request.user.id:
+                user1 = request.user
+            else:
+                user1 = User.objects.get(id=user1)
+
+            if user2 == request.user.id:
+                user2 = request.user
+            else:
+                user2 = User.objects.get(id=user2)
+
+            UserFriend.objects.create(
+                user1=user1,
+                user2=user2,
+                status=Status.objects.get(value="Pending"),
+                initiator=request.user,
+            )
+
+            return Response(status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            print(e)
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "DELETE":
+        # Cancel friend request or unfriend user
+        user1 = request.data.get("friend_id")
+        user2 = request.user.id
+        if user1 > user2:
+            user1, user2 = user2, user1
+
+        delete = UserFriend.objects.filter(user1=user1, user2=user2).delete()
+        if not delete[0] == 0:
+            return Response(status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("No such request found", status=status.HTTP_400_BAD_REQUEST)
