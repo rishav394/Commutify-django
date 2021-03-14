@@ -149,3 +149,33 @@ class UserFriend(models.Model):
     class Meta:
         db_table = "user_friend"
         unique_together = ("user1", "user2")
+
+
+class UserChats(models.Model):
+    timestamp = models.DateTimeField(auto_now=True)
+    from_user = models.ForeignKey(
+        User,
+        models.DO_NOTHING,
+        db_column="from_user",
+        related_name="from_user",
+        blank=False,
+        null=False,
+    )
+    to_user = models.ForeignKey(
+        User,
+        models.DO_NOTHING,
+        db_column="to_user",
+        related_name="to_user",
+        blank=False,
+        null=False,
+    )
+    message = models.CharField(
+        max_length=200, blank=False, validators=[MinLengthValidator(1)]
+    )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(UserFriend, self).save(*args, **kwargs)
+
+    class Meta:
+        db_table = "user_chats"

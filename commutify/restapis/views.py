@@ -180,7 +180,7 @@ def friends(request):
             user2=user2,
             status__value="Pending",
             initiator=request.data["friend_id"],
-        ).update(status=4)
+        ).update(status=Status.objects.get(value="Connected"))
 
         if update_count == 1:
             return Response(status=status.HTTP_202_ACCEPTED)
