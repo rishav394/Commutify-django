@@ -1,13 +1,13 @@
-from khushiapp.restapis.decorators import valid_session
-from khushiapp.restapis.models import Domain, User, UserDomains, UserFriend, Status
-from khushiapp.restapis.serializers import (
+from commutify.restapis.decorators import valid_session
+from commutify.restapis.models import Domain, User, UserDomains, UserFriend, Status
+from commutify.restapis.serializers import (
     DomainSerializer,
     UserDomainsSerializer,
     UserSerializer,
 )
 from django.db.models import Q
 from django.core.exceptions import ValidationError
-from khushiapp.restapis.util import get_hashed_password
+from commutify.restapis.util import get_hashed_password
 from rest_framework import request, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -149,3 +149,6 @@ def domain_users(request):
             )
         except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+
+# FRIENDS

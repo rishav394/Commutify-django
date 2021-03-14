@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from khushiapp.restapis import views
+from commutify.restapis import views
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

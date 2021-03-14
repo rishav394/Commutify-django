@@ -2,7 +2,7 @@ import bcrypt
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, MinLengthValidator, RegexValidator
 from django.db import models
-from khushiapp.restapis.util import get_hashed_password
+from commutify.restapis.util import get_hashed_password
 
 
 class Gender(models.Model):
