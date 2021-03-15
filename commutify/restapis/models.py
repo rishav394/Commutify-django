@@ -18,17 +18,17 @@ class Gender(models.Model):
         db_table = "gender"
 
 
-class Status(models.Model):
+class FriendshipStatus(models.Model):
     value = models.CharField(
         max_length=30, unique=True, null=True, validators=[MinLengthValidator(1)]
     )
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        super(Status, self).save(*args, **kwargs)
+        super(FriendshipStatus, self).save(*args, **kwargs)
 
     class Meta:
-        db_table = "status"
+        db_table = "friendship_status"
 
 
 class User(models.Model):
@@ -131,7 +131,7 @@ class UserFriend(models.Model):
         null=False,
     )
     status = models.ForeignKey(
-        Status, models.DO_NOTHING, db_column="status", blank=False, null=False
+        FriendshipStatus, models.DO_NOTHING, db_column="status", blank=False, null=False
     )
     initiator = models.ForeignKey(
         User, models.DO_NOTHING, db_column="initiator", blank=False, null=False

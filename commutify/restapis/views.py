@@ -1,5 +1,11 @@
 from commutify.restapis.decorators import valid_session
-from commutify.restapis.models import Domain, User, UserDomains, UserFriend, Status
+from commutify.restapis.models import (
+    Domain,
+    User,
+    UserDomains,
+    UserFriend,
+    FriendshipStatus,
+)
 from commutify.restapis.serializers import (
     DomainSerializer,
     UserDomainsSerializer,
@@ -118,7 +124,7 @@ def domain_users(request):
         # Need to verify
         friends = UserFriend.objects.filter(
             Q(Q(user1=request.session["id"]) | Q(user2=request.session["id"]))
-            & Q(status=Status.objects.get(value="Connected"))
+            & Q(status=FriendshipStatus.objects.get(value="Connected"))
         ).values_list("user1", "user2")
         for user in users:
             user["connected"] = user["user__id"] in friends
@@ -180,7 +186,7 @@ def friends(request):
             user2=user2,
             status__value="Pending",
             initiator=request.data["friend_id"],
-        ).update(status=Status.objects.get(value="Connected"))
+        ).update(status=FriendshipStatus.objects.get(value="Connected"))
 
         if update_count == 1:
             return Response(status=status.HTTP_202_ACCEPTED)
@@ -207,7 +213,7 @@ def friends(request):
             UserFriend.objects.create(
                 user1=user1,
                 user2=user2,
-                status=Status.objects.get(value="Pending"),
+                status=FriendshipStatus.objects.get(value="Pending"),
                 initiator=request.user,
             )
 

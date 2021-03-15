@@ -4,7 +4,7 @@ from commutify.restapis.models import (
     User,
     Domain,
     Gender,
-    Status,
+    FriendshipStatus,
     UserDomains,
     UserFriend,
 )
@@ -26,7 +26,7 @@ class GenderSerializer(serializers.ModelSerializer):
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
-        model = Status
+        model = FriendshipStatus
 
 
 class UserSerializer(serializers.ModelSerializer):
