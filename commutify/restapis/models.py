@@ -172,10 +172,11 @@ class UserChats(models.Model):
     message = models.CharField(
         max_length=200, blank=False, validators=[MinLengthValidator(1)]
     )
+    read = models.BooleanField(default=False, blank=False, null=False)
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        super(UserFriend, self).save(*args, **kwargs)
+        super(UserChats, self).save(*args, **kwargs)
 
     class Meta:
         db_table = "user_chats"
