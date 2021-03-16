@@ -13,7 +13,10 @@ from commutify.restapis.serializers import (
 )
 from django.db.models import Q
 from django.core.exceptions import ValidationError
-from commutify.restapis.util import get_hashed_password
+from commutify.restapis.util import (
+    convert_tuple_list_to_unique_list,
+    get_hashed_password,
+)
 from rest_framework import request, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -93,10 +96,12 @@ def users(request: request.Request):
 def domains(request):
     if request.method == "GET":
         # Get domains
-        domains = Domain.objects.filter().values()
-        subscribed_domains = UserDomains.objects.filter(
-            user=request.session["id"]
-        ).values_list("domain_id")
+        domains = Domain.objects.filter(**request.data).values()
+        subscribed_domains = convert_tuple_list_to_unique_list(
+            UserDomains.objects.filter(user=request.session["id"]).values_list(
+                "domain_id"
+            )
+        )
         for domain in domains:
             domain["subscribed"] = domain["id"] in subscribed_domains[0]
         return Response(domains)
@@ -121,11 +126,12 @@ def domain_users(request):
         users = UserDomains.objects.filter(**request.data).values(
             "user__id", "user__name", "domain__id", "user__photo"
         )
-        # Need to verify
-        friends = UserFriend.objects.filter(
-            Q(Q(user1=request.session["id"]) | Q(user2=request.session["id"]))
-            & Q(status=FriendshipStatus.objects.get(value="Connected"))
-        ).values_list("user1", "user2")
+        friends = convert_tuple_list_to_unique_list(
+            UserFriend.objects.filter(
+                Q(Q(user1=request.session["id"]) | Q(user2=request.session["id"]))
+                & Q(status=FriendshipStatus.objects.get(value="Connected"))
+            ).values_list("user1", "user2")
+        )
         for user in users:
             user["connected"] = user["user__id"] in friends
         return Response(users)
