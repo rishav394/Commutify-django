@@ -59,7 +59,7 @@ class User(models.Model):
     gender = models.ForeignKey(
         Gender, models.DO_NOTHING, db_column="gender", null=True, blank=True
     )
-    photo = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    photo = models.CharField(max_length=255, null=True, blank=True)
     bio = models.CharField(max_length=255, null=True, blank=True)
     joined_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
