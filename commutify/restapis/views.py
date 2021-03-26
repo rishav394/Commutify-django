@@ -103,7 +103,7 @@ def domains(request):
             )
         )
         for domain in domains:
-            domain["subscribed"] = domain["id"] in subscribed_domains[0]
+            domain["subscribed"] = domain["id"] in subscribed_domains
         return Response(domains)
     elif request.method == "PUT":
         # Create domains
