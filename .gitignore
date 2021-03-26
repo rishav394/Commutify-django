@@ -138,6 +138,5 @@ dmypy.json
 cython_debug/
 
 production_settings.py
-settings.py
 
 .vscode
