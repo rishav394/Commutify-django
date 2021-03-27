@@ -104,6 +104,9 @@ def domains(request):
         )
         for domain in domains:
             domain["subscribed"] = domain["id"] in subscribed_domains
+        domains = [x for x in domains if x["subscribed"] == True] + [
+            x for x in domains if x["subscribed"] == False
+        ]
         return Response(domains)
     elif request.method == "PUT":
         # Create domains
