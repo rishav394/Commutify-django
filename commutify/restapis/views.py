@@ -274,3 +274,9 @@ def friends(request):
             return Response(status=status.HTTP_202_ACCEPTED)
         else:
             return Response("No such request found", status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@valid_session
+def whoami(request):
+    return Response(UserSerializer(request.user).data)
