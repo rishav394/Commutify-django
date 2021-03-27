@@ -187,10 +187,26 @@ def domain_users(request):
 # FRIENDS
 
 
-@api_view(["GET", "POST", "PUT", "DELETE"])
+@api_view(["GET", "POST", "PUT", "DELETE", "PATCH"])
 @valid_session
 def friends(request):
     if request.method == "GET":
+        friend_id = request.GET.get("friend_id", None)
+        try:
+            if friend_id is None:
+                raise ValidationError("Friend id required")
+            all_friends = (
+                UserFriend.objects.filter(
+                    Q(user1=min(request.session["id"], int(friend_id)))
+                    & Q(user2=max(request.session["id"], int(friend_id)))
+                )
+                .filter(**request.data)
+                .values("user1__id", "user2__id", "status__value", "initiator__id")
+            )
+            return Response(all_friends)
+        except Exception as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "POST":
         # List friends with filter of this user
         all_friends = (
             UserFriend.objects.filter(
@@ -200,7 +216,7 @@ def friends(request):
             .values("user1__id", "user2__id", "status__value", "initiator__id")
         )
         return Response(all_friends)
-    if request.method == "POST":
+    if request.method == "PATCH":
         # Accept request
         user1 = request.data.get("friend_id")
         user2 = request.user.id
