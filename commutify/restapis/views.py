@@ -1,6 +1,7 @@
 from commutify.restapis.decorators import valid_session
 from commutify.restapis.models import (
     Domain,
+    Gender,
     User,
     UserDomains,
     UserFriend,
@@ -25,6 +26,7 @@ from rest_framework.response import Response
 # USER
 
 
+# Login
 @api_view(["POST"])
 def login(request: request.Request):
     if request.method == "POST":
@@ -47,10 +49,14 @@ def login(request: request.Request):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+# Sign up
 @api_view(["PUT"])
 def sign_up(request):
     if request.method == "PUT":
         try:
+            data = request.data
+            if data["gender"] is not None:
+                data["gender"] = Gender.objects.get(id=data["gender"])
             newUser: User = User(**request.data)
             if not newUser.password:
                 raise ValidationError("Password is required")
@@ -64,6 +70,7 @@ def sign_up(request):
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
+# Logout
 @api_view(["GET"])
 def logout(request):
     if "id" in request.session:
@@ -71,19 +78,22 @@ def logout(request):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(["GET", "POST"])
+@api_view(["PATCH", "POST"])
 @valid_session
 def users(request: request.Request):
     # Get users for any filter. (From id, self user or by name, filters etc)
-    if request.method == "GET":
+    if request.method == "POST":
         users = User.objects.filter(**request.data).values()
         return Response(users)
-    if request.method == "POST":
+    if request.method == "PATCH":
         # Update self
         user: User or None = request.user
         for key in ["bio", "photo", "phone", "email", "gender"]:
             if request.data.get(key, None) is not None:
-                setattr(user, key, request.data.get(key))
+                if key == "gender":
+                    setattr(user, key, Gender.objects.get(id=request.data.get(key)))
+                else:
+                    setattr(user, key, request.data.get(key))
         user.save()
         return Response(UserSerializer(user).data)
 
@@ -121,13 +131,18 @@ def domains(request):
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET", "PUT", "DELETE"])
+@api_view(["POST", "PUT", "DELETE"])
 @valid_session
 def domain_users(request):
     # Get users in domains
-    if request.method == "GET":
+    if request.method == "POST":
         users = UserDomains.objects.filter(**request.data).values(
-            "user__id", "user__name", "domain__id", "user__photo"
+            "user__id",
+            "user__name",
+            "domain__id",
+            "user__photo",
+            "user__dob",
+            "user__gender",
         )
         friends = convert_tuple_list_to_unique_list(
             UserFriend.objects.filter(
@@ -157,6 +172,8 @@ def domain_users(request):
         try:
             user = request.user
             domain = Domain.objects.filter(id=request.data.get("domain")).first()
+            if domain is None:
+                raise ValidationError("No such domain")
             deleted_data = UserDomains.objects.filter(user=user, domain=domain).delete()
             if deleted_data[0] == 0:
                 raise ValidationError("User isn't linked to this domain")

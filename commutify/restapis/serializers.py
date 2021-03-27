@@ -30,8 +30,11 @@ class StatusSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # gender = serializers.CharField(source="gender.value")
+
     class Meta:
         fields = [
+            "id",
             "name",
             "email",
             "phone",
