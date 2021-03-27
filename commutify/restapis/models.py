@@ -87,6 +87,7 @@ class Domain(models.Model):
     created_by = models.ForeignKey(
         User, models.DO_NOTHING, db_column="created_by", null=True, blank=True
     )
+    image = models.CharField(max_length=254, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
