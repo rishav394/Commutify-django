@@ -132,7 +132,12 @@ class UserFriend(models.Model):
         null=False,
     )
     status = models.ForeignKey(
-        FriendshipStatus, models.DO_NOTHING, db_column="status", blank=False, null=False
+        FriendshipStatus,
+        models.DO_NOTHING,
+        db_column="status",
+        related_name="status",
+        blank=False,
+        null=False,
     )
     initiator = models.ForeignKey(
         User, models.DO_NOTHING, db_column="initiator", blank=False, null=False
