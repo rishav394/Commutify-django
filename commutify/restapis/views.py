@@ -55,8 +55,10 @@ def sign_up(request):
     if request.method == "PUT":
         try:
             data = request.data
-            if data["gender"] is not None:
+            if data["gender"] is not None and int(data["gender"]) > 0:
                 data["gender"] = Gender.objects.get(id=data["gender"])
+            else:
+                del data["gender"]
             newUser: User = User(**request.data)
             if not newUser.password:
                 raise ValidationError("Password is required")
