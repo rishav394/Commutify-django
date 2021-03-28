@@ -36,6 +36,17 @@ class Command(BaseCommand):
         url = "https://randomuser.me/api/?results={}".format(count)
         f = urllib.request.urlopen(url)
         user_data = UserResultfromdict(json.loads(f.read().decode("utf-8")))
+        User.objects.create(
+            name="Rishav Rungta",
+            email="rishav394@gmail.com",
+            phone="9958095891",
+            password=get_hashed_password("9958095891"),
+            dob="{}-{}-{}".format(1999, 11, 20),
+            gender=self.get_random_gender(),
+            bio="I am {} {} and my email is {}. I like to code and I am batman. Yes.".format(
+                "Rishav", "Rungta", "rishav394@gmail.com"
+            ),
+        )
         for result in user_data.results:
             try:
                 User.objects.create(
@@ -73,23 +84,26 @@ class Command(BaseCommand):
                 print(names[i])
         print("Populated {} domains".format(len(names)))
 
-    def populate_user_domains(self, count=250):
-        print("Populating {} user-domains".format(count))
-        success_count = 0
-        while success_count < count:
-            try:
-                UserDomains.objects.create(
-                    domain=Domain.objects.order_by("?")[0],
-                    user=User.objects.order_by("?")[0],
-                )
-                success_count += 1
-            except:
-                pass
-        print("Populated {} user-domains".format(count))
+    def populate_user_domains(self):
+        print("Populating user-domains")
+        domain_count = UserDomains.objects.count()
+        users = UserDomains.objects.all()
+        counter = 0
+        for i in range(1, domain_count):
+            users_to_do = sample(users, (len(users) - i) // 5)
+            domain: Domain = Domain.objects.get(id=i)
+            for x in users_to_do:
+                try:
+                    UserDomains.objects.create(
+                        domain=domain,
+                        user=x,
+                    )
+                    counter += 1
+                except Exception as e:
+                    print(e)
+        print("Populated {} user-domains".format(counter))
 
-    def populate_user_friends(
-        self,
-    ):
+    def populate_user_friends(self):
         print("Populating {} user-friends".format("some"))
         user_count = User.objects.count()
         counter = 0
