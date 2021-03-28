@@ -140,3 +140,5 @@ cython_debug/
 production_settings.py
 
 .vscode
+
+commutify_db
